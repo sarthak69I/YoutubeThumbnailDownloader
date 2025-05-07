@@ -1,0 +1,116 @@
+{% extends 'layout.html' %}
+
+{% block title %}YouTube Thumbnail & Video Downloader{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark">
+                <h1 class="h4 mb-0 text-center">YouTube Thumbnail & Video Downloader</h1>
+            </div>
+            <div class="card-body">
+                <form id="urlForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="youtubeUrl" class="form-label">Enter YouTube Video URL</label>
+                        <div class="input-group">
+                            <input type="url" class="form-control" id="youtubeUrl" name="url" 
+                                placeholder="https://www.youtube.com/watch?v=..." required>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-search me-1"></i> Fetch
+                            </button>
+                        </div>
+                        <div class="form-text">Paste a valid YouTube video link</div>
+                    </div>
+                </form>
+                
+                <div id="loadingIndicator" class="text-center d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Fetching video information...</p>
+                </div>
+                
+                <div id="errorContainer" class="alert alert-danger d-none" role="alert"></div>
+                
+                <div id="videoInfoContainer" class="d-none">
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark">
+                            <h2 class="h5 mb-0">Video Information</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="thumbnail-container">
+                                        <img id="videoThumbnail" src="" alt="Video Thumbnail" class="img-fluid rounded mb-2">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h3 id="videoTitle" class="h5 mb-3"></h3>
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Author:</strong> <span id="videoAuthor"></span></p>
+                                        <p class="mb-1"><strong>Duration:</strong> <span id="videoDuration"></span></p>
+                                        <p class="mb-1"><strong>Views:</strong> <span id="videoViews"></span></p>
+                                        <p class="mb-1"><strong>Published:</strong> <span id="videoPublished"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark">
+                            <h2 class="h5 mb-0">Download Thumbnail</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Select Thumbnail Quality</label>
+                                <select id="thumbnailQuality" class="form-select">
+                                    <option value="default">Default (120x90)</option>
+                                    <option value="medium">Medium (320x180)</option>
+                                    <option value="high" selected>High (480x360)</option>
+                                    <option value="standard">Standard (640x480)</option>
+                                    <option value="maxres">Max Resolution (1280x720)</option>
+                                </select>
+                            </div>
+                            <button id="downloadThumbnailBtn" class="btn btn-success">
+                                <i class="fas fa-download me-1"></i> Download Thumbnail
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header bg-dark">
+                            <h2 class="h5 mb-0">Download Video</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Select Video Quality</label>
+                                <select id="videoQuality" class="form-select"></select>
+                                <div class="form-text mt-1">File size is approximate and may vary</div>
+                            </div>
+                            <button id="downloadVideoBtn" class="btn btn-success">
+                                <i class="fas fa-download me-1"></i> Download Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark">
+                <h2 class="h5 mb-0">How to use</h2>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Paste a YouTube video URL in the input field above</li>
+                    <li>Click the "Fetch" button to retrieve video information</li>
+                    <li>Choose your preferred thumbnail quality and click "Download Thumbnail"</li>
+                    <li>Select your desired video quality and click "Download Video"</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

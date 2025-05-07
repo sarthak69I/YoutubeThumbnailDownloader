@@ -1,0 +1,89 @@
+/* Custom styles for YouTube Downloader */
+
+/* Make thumbnail container responsive */
+.thumbnail-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.thumbnail-container img {
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail-container:hover img {
+    transform: scale(1.05);
+}
+
+/* Custom styles for input group */
+.input-group .form-control {
+    border-radius: 4px 0 0 4px;
+}
+
+.input-group .btn {
+    border-radius: 0 4px 4px 0;
+}
+
+/* Improve spacing */
+.card {
+    margin-bottom: 1.5rem;
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Button hover effects */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.2);
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* YouTube icon styling */
+.fa-youtube {
+    font-size: 1.2em;
+}
+
+/* Video info styling */
+#videoTitle {
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+/* Form improvements */
+select.form-select {
+    cursor: pointer;
+}
+
+/* Add responsiveness padding for smaller screens */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+}

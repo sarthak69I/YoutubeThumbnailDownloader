@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update UI with video information
             videoThumbnail.src = currentVideoData.thumbnails.high;
-            videoTitle.textContent = currentVideoData.title;
-            videoAuthor.textContent = currentVideoData.author;
-            videoDuration.textContent = formatDuration(currentVideoData.length);
-            videoViews.textContent = formatNumber(currentVideoData.views);
-            videoPublished.textContent = currentVideoData.publish_date;
+            videoTitle.textContent = currentVideoData.title || `YouTube Video (${currentVideoId})`;
+            videoAuthor.textContent = currentVideoData.author || 'YouTube Creator';
+            videoDuration.textContent = currentVideoData.length ? formatDuration(currentVideoData.length) : 'Unknown';
+            videoViews.textContent = currentVideoData.views ? formatNumber(currentVideoData.views) : 'Unknown';
+            videoPublished.textContent = currentVideoData.publish_date || 'Unknown';
             
             // Populate video quality dropdown
             videoQuality.innerHTML = '';
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle video download
     downloadVideoBtn.addEventListener('click', function() {
-        if (!currentVideoData) {
+        if (!currentVideoData || !currentVideoId) {
             showError("No video data available. Please fetch a video first.");
             return;
         }
@@ -155,8 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadVideoBtn.disabled = true;
         downloadVideoBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Preparing Download...';
         
-        // Start download
-        window.location.href = `/download_video?url=${encodeURIComponent(youtubeUrl.value)}&itag=${selectedItag}`;
+        // Start download using video_id
+        window.location.href = `/download_video?video_id=${currentVideoId}`;
         
         // Re-enable button after 3 seconds
         setTimeout(() => {

@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}Video Download - YouTube Thumbnail Downloader{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Video Download Options</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="https://img.youtube.com/vi/{{ video_id }}/mqdefault.jpg" alt="Video thumbnail" class="img-fluid rounded mb-3">
+                        <h4>Video ID: {{ video_id }}</h4>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <p>Due to YouTube's terms of service and API changes, direct video downloads within this application are currently limited. You have several options:</p>
+                    </div>
+                    
+                    <div class="list-group mt-4">
+                        <a href="https://www.youtube.com/watch?v={{ video_id }}" target="_blank" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Watch on YouTube</h5>
+                                <small><i class="fas fa-external-link-alt"></i></small>
+                            </div>
+                            <p class="mb-1">Open the video directly on YouTube</p>
+                        </a>
+                        
+                        <a href="/download_thumbnail?video_id={{ video_id }}&quality=maxres&url=https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Download HD Thumbnail</h5>
+                                <small><i class="fas fa-image"></i></small>
+                            </div>
+                            <p class="mb-1">Download the highest quality thumbnail image</p>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

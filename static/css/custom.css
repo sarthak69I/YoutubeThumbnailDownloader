@@ -1,89 +1,347 @@
-/* Custom styles for YouTube Downloader */
+/* MONSTOR YouTube Downloader - Enhanced Custom Styles */
 
-/* Make thumbnail container responsive */
+/* Global animations and transitions */
+:root {
+    --animate-duration: 0.5s;
+    --transition-base: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --glow-color: rgba(255, 0, 0, 0.5);
+    --primary-glow: 0 0 15px var(--glow-color);
+}
+
+body {
+    transition: var(--transition-base);
+}
+
+/* Advanced Thumbnail Effects */
 .thumbnail-container {
     position: relative;
     width: 100%;
     overflow: hidden;
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: perspective(1000px) rotateX(0deg);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
 .thumbnail-container img {
     width: 100%;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.thumbnail-container:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    transform: perspective(1000px) rotateX(5deg);
 }
 
 .thumbnail-container:hover img {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
-/* Custom styles for input group */
+/* Animated Input and Button Styles */
+.input-group {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: var(--transition-base);
+}
+
+.input-group:focus-within {
+    box-shadow: 0 6px 18px rgba(255, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
 .input-group .form-control {
-    border-radius: 4px 0 0 4px;
+    border-radius: 8px 0 0 8px;
+    border: 2px solid transparent;
+    transition: var(--transition-base);
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+}
+
+.input-group .form-control:focus {
+    border-color: var(--bs-danger);
+    box-shadow: none;
 }
 
 .input-group .btn {
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
-/* Improve spacing */
+/* Enhanced Card Styling */
 .card {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
+    transition: var(--transition-base);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 .card-header {
-    padding: 1rem;
+    padding: 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #222222 0%, #111111 100%);
 }
 
 .card-body {
-    padding: 1.5rem;
+    padding: 1.75rem;
 }
 
-/* Button hover effects */
+/* Advanced Button Animations */
 .btn {
-    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-base);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.btn:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
 }
 
 .btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.2);
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
 }
 
-/* Loading spinner */
+/* Loading Animation */
 .spinner-border {
     width: 3rem;
     height: 3rem;
+    border-width: 0.25em;
+    animation: spin 1s linear infinite, glow 1.5s ease-in-out infinite alternate;
 }
 
-/* YouTube icon styling */
-.fa-youtube {
+@keyframes glow {
+    from {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.6);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Enhanced Branding */
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    position: relative;
+    transition: var(--transition-base);
+}
+
+.navbar-brand:hover {
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.brand-text {
+    font-weight: 900;
+    background: linear-gradient(90deg, #ff0000, #ff6600);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     font-size: 1.2em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: -1px;
 }
 
-/* Video info styling */
+.fa-youtube {
+    font-size: 1.3em;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.7));
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Video Info Animations */
 #videoTitle {
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.4;
+    background: linear-gradient(90deg, #f5f5f5, #ddd, #f5f5f5);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: shine 3s linear infinite;
 }
 
-/* Form improvements */
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* Form Control Enhancements */
 select.form-select {
     cursor: pointer;
+    background-size: 16px 12px;
+    transition: var(--transition-base);
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Add responsiveness padding for smaller screens */
+select.form-select:hover {
+    border-color: rgba(255, 0, 0, 0.3);
+}
+
+select.form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.25);
+    border-color: rgba(255, 0, 0, 0.5);
+}
+
+/* Footer Animation */
+.footer-text {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(90deg, #ff4d4d, #f9cb28, #ff4d4d);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: gradient 3s linear infinite;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+@keyframes gradient {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* Styled Instructions List */
+.instruction-list {
+    counter-reset: item;
+    list-style-type: none;
+    padding-left: 0.5rem;
+}
+
+.instruction-list li {
+    position: relative;
+    padding: 0.75rem 0 0.75rem 2.5rem;
+    margin-bottom: 0.5rem;
+    counter-increment: item;
+    transition: var(--transition-base);
+}
+
+.instruction-list li::before {
+    content: counter(item);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #ff4d4d, #ff6666);
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    box-shadow: 0 2px 5px rgba(255, 77, 77, 0.3);
+}
+
+.instruction-list li:hover {
+    transform: translateX(5px);
+}
+
+.instruction-list li:hover::before {
+    box-shadow: 0 4px 10px rgba(255, 77, 77, 0.5);
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
     .card-body {
-        padding: 1rem;
+        padding: 1.25rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .instruction-list li {
+        padding-left: 2rem;
+    }
+    
+    .instruction-list li::before {
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        font-size: 0.8rem;
     }
 }

@@ -7,7 +7,7 @@
     <div class="col-lg-8">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-dark">
-                <h1 class="h4 mb-0 text-center">YouTube Thumbnail & Video Downloader</h1>
+                <h1 class="h4 mb-0 text-center"><span class="brand-text">MONSTOR</span> YouTube Downloader</h1>
             </div>
             <div class="card-body">
                 <form id="urlForm" class="mb-4">
@@ -17,7 +17,7 @@
                             <input type="url" class="form-control" id="youtubeUrl" name="url" 
                                 placeholder="https://www.youtube.com/watch?v=..." required>
                             <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <i class="fas fa-search me-1"></i> Fetch
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                         <div class="form-text">Paste a valid YouTube video link</div>
@@ -25,10 +25,10 @@
                 </form>
                 
                 <div id="loadingIndicator" class="text-center d-none">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border text-danger" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Fetching video information...</p>
+                    <p class="mt-2 loading-text">Hunting for video content...</p>
                 </div>
                 
                 <div id="errorContainer" class="alert alert-danger d-none" role="alert"></div>
@@ -103,9 +103,9 @@
                 <h2 class="h5 mb-0">How to use</h2>
             </div>
             <div class="card-body">
-                <ol class="mb-0">
+                <ol class="mb-0 instruction-list">
                     <li>Paste a YouTube video URL in the input field above</li>
-                    <li>Click the "Fetch" button to retrieve video information</li>
+                    <li>Click the search button to retrieve video information</li>
                     <li>Choose your preferred thumbnail quality and click "Download Thumbnail"</li>
                     <li>Select your desired video quality and click "Download Video"</li>
                 </ol>

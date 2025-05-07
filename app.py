@@ -1,6 +1,7 @@
 import os
 import logging
 import re
+import requests
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, render_template, request, jsonify, send_file, abort, redirect, url_for
 from pytube import YouTube
@@ -66,15 +67,24 @@ def get_video_info():
         return jsonify({'error': 'Invalid YouTube URL. Please enter a valid YouTube video URL.'}), 400
     
     try:
-        yt = YouTube(url)
+        video_id = get_video_id(url)
+        if not video_id:
+            return jsonify({'error': 'Could not extract video ID from URL'}), 400
+            
+        # Create YouTube object with additional options to avoid errors
+        yt = YouTube(
+            url,
+            use_oauth=False,
+            allow_oauth_cache=False
+        )
         
         # Get thumbnail URLs
         thumbnails = {
-            'default': yt.thumbnail_url,
-            'high': f"https://img.youtube.com/vi/{get_video_id(url)}/hqdefault.jpg",
-            'medium': f"https://img.youtube.com/vi/{get_video_id(url)}/mqdefault.jpg",
-            'standard': f"https://img.youtube.com/vi/{get_video_id(url)}/sddefault.jpg",
-            'maxres': f"https://img.youtube.com/vi/{get_video_id(url)}/maxresdefault.jpg"
+            'default': f"https://img.youtube.com/vi/{video_id}/default.jpg",
+            'high': f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+            'medium': f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg",
+            'standard': f"https://img.youtube.com/vi/{video_id}/sddefault.jpg",
+            'maxres': f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
         }
         
         # Get video streams info
@@ -106,7 +116,7 @@ def get_video_info():
         return jsonify({'error': 'This video is unavailable. It might be private or removed.'}), 400
     except Exception as e:
         logger.error(f"Error getting video info: {str(e)}")
-        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        return jsonify({'error': f'An error occurred: {str(e)}. Please try a different video URL.'}), 500
 
 @app.route('/download_thumbnail', methods=['GET'])
 def download_thumbnail():
@@ -166,7 +176,12 @@ def download_video():
         if not url or not itag:
             return jsonify({'error': 'Missing URL or itag'}), 400
         
-        yt = YouTube(url)
+        # Create YouTube object with additional options to avoid errors
+        yt = YouTube(
+            url,
+            use_oauth=False,
+            allow_oauth_cache=False
+        )
         stream = yt.streams.get_by_itag(int(itag))
         
         if not stream:
@@ -201,10 +216,12 @@ def download_video():
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
     finally:
         # Clean up the temporary file if it exists
-        if 'temp_path' in locals() and os.path.exists(temp_path):
+        if 'temp_path' in locals():
             try:
-                os.unlink(temp_path)
-            except:
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+            except Exception as e:
+                logger.error(f"Error cleaning up temp file: {str(e)}")
                 pass
 
 @app.errorhandler(404)

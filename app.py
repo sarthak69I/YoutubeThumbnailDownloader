@@ -54,7 +54,7 @@ def get_video_id(url):
 @app.route('/')
 def index():
     """Render the main page"""
-    return render_template('index.html')
+    return render_template('new_index.html')
 
 @app.route('/get_video_info', methods=['POST'])
 def get_video_info():

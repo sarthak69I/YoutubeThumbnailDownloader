@@ -36,6 +36,9 @@ A comprehensive web application for downloading YouTube content with unlimited c
 - ✓ **Vercel Optimization: Converted Flask backend to Vercel serverless functions**
 - ✓ **Pure Serverless: Eliminated Flask dependency, full yt-dlp integration in Next.js**
 - ✓ **Always-On Deployment: Ready for unlimited, always-available hosting on Vercel**
+- ✓ **Streaming Downloads: Implemented to bypass timeout issues for large files**
+- ✓ **Hybrid Hosting: Added Railway deployment option for unlimited large downloads**
+- ✓ **Smart Routing: Automatic selection between Vercel/Railway based on file size**
 
 ## Project Architecture
 - **Frontend**: Next.js 14 with React 18 and TypeScript components

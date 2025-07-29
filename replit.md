@@ -1,17 +1,20 @@
-# MONSTOR YouTube Downloader
+# E-LEAKxDOWN YouTube Downloader
 
 ## Project Overview
 A modern web application for downloading YouTube thumbnails and videos. Features include:
 - Real video downloads using yt-dlp for reliable extraction
 - Thumbnail downloads in multiple qualities
-- Modern UI/UX with animations and MONSTOR branding
+- Modern UI/UX with animations and E-LEAKxDOWN branding
 - Bootstrap dark theme integration
+- Custom logo integration from external source
 
 ## Recent Changes (July 29, 2025)
 - ✓ Migrated from pytube to yt-dlp for better YouTube API compatibility
 - ✓ Fixed JavaScript errors with null checks for DOM elements
 - ✓ Implemented real video download functionality
-- ✓ Enhanced UI with MONSTOR branding and animations
+- ✓ Rebranded from MONSTOR to E-LEAKxDOWN with new logo
+- ✓ Updated color scheme to green theme (rgba(0, 255, 136))
+- ✓ Integrated external logo from i.ibb.co
 - ✓ Added proper error handling for video extraction
 
 ## Project Architecture
@@ -23,7 +26,8 @@ A modern web application for downloading YouTube thumbnails and videos. Features
 ## User Preferences
 - Prefers functional video downloads over limitations
 - Wants modern UI/UX with animations
-- Likes the MONSTOR branding theme
+- Requested E-LEAKxDOWN branding with custom logo
+- Prefers green color scheme for the brand
 
 ## Key Technical Decisions
 - **yt-dlp over pytube**: More reliable for current YouTube API changes

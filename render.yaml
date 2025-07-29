@@ -1,0 +1,30 @@
+services:
+  # Next.js Frontend
+  - type: web
+    name: eleakxdown-frontend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://eleakxdown-backend.onrender.com
+    domains:
+      - eleakxdown.onrender.com
+
+  # Flask Backend  
+  - type: web
+    name: eleakxdown-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT main:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    domains:
+      - eleakxdown-backend.onrender.com

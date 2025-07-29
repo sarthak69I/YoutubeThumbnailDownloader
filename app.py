@@ -77,7 +77,7 @@ def get_video_info():
             'quiet': True,
             'no_warnings': True,
             'extractaudio': False,
-            'format': 'best[height<=720]',
+            'format': 'best',
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -94,24 +94,40 @@ def get_video_info():
             }
             
             # Extract available formats/streams
-            streams = []
+            video_streams = []
+            audio_streams = []
+            
             if 'formats' in info:
                 for fmt in info['formats']:
-                    if fmt.get('vcodec') != 'none' and fmt.get('acodec') != 'none':  # Has both video and audio
-                        streams.append({
+                    # Video formats (with or without audio)
+                    if fmt.get('vcodec') != 'none':
+                        video_streams.append({
                             'format_id': fmt.get('format_id', ''),
                             'resolution': fmt.get('height', 'Unknown'),
                             'ext': fmt.get('ext', 'mp4'),
                             'filesize': fmt.get('filesize', 0),
                             'format_note': fmt.get('format_note', ''),
-                            'fps': fmt.get('fps', 0)
+                            'fps': fmt.get('fps', 0),
+                            'has_audio': fmt.get('acodec') != 'none'
+                        })
+                    
+                    # Audio-only formats
+                    if fmt.get('acodec') != 'none' and fmt.get('vcodec') == 'none':
+                        audio_streams.append({
+                            'format_id': fmt.get('format_id', ''),
+                            'ext': fmt.get('ext', 'mp3'),
+                            'filesize': fmt.get('filesize', 0),
+                            'format_note': fmt.get('format_note', ''),
+                            'abr': fmt.get('abr', 0)
                         })
             
-            # Sort streams by resolution (highest first)
-            streams = sorted(streams, key=lambda x: int(x['resolution']) if str(x['resolution']).isdigit() else 0, reverse=True)
+            # Sort streams by resolution/quality (highest first)
+            video_streams = sorted(video_streams, key=lambda x: int(x['resolution']) if str(x['resolution']).isdigit() else 0, reverse=True)
+            audio_streams = sorted(audio_streams, key=lambda x: x['abr'] if x['abr'] else 0, reverse=True)
             
-            # Take only the first 6 streams to avoid clutter
-            streams = streams[:6]
+            # Take best options
+            video_streams = video_streams[:8]
+            audio_streams = audio_streams[:5]
             
             # Format duration
             duration = info.get('duration', 0)
@@ -125,9 +141,11 @@ def get_video_info():
                 'views': info.get('view_count', 0),
                 'publish_date': info.get('upload_date', 'Unknown'),
                 'thumbnails': thumbnails,
-                'streams': streams,
+                'video_streams': video_streams,
+                'audio_streams': audio_streams,
                 'video_id': video_id,
-                'duration_str': duration_str
+                'duration_str': duration_str,
+                'description': info.get('description', '')[:200] + '...' if info.get('description') else ''
             }
             
             return jsonify({'success': True, 'video_info': video_info})
@@ -207,6 +225,7 @@ def download_video():
             'outtmpl': os.path.join(temp_dir, f'{video_id}.%(ext)s'),
             'quiet': True,
             'no_warnings': True,
+            'merge_output_format': 'mp4',
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -249,6 +268,66 @@ def download_video():
     except Exception as e:
         logger.error(f"Error downloading video: {str(e)}")
         return jsonify({'error': f'Failed to download video: {str(e)}'}), 500
+
+@app.route('/download_audio', methods=['GET'])
+def download_audio():
+    """Download YouTube audio as MP3 using yt-dlp"""
+    try:
+        url = request.args.get('url')
+        format_id = request.args.get('format_id', 'bestaudio')
+        
+        if not url:
+            return jsonify({'error': 'Missing video URL'}), 400
+        
+        video_id = get_video_id(url)
+        if not video_id:
+            return jsonify({'error': 'Invalid video URL'}), 400
+        
+        # Create temporary directory for download
+        temp_dir = tempfile.mkdtemp()
+        
+        # Configure yt-dlp options for audio extraction
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': os.path.join(temp_dir, f'{video_id}.%(ext)s'),
+            'quiet': True,
+            'no_warnings': True,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Download and extract audio
+            info = ydl.extract_info(url, download=True)
+            
+            # Find the downloaded MP3 file
+            downloaded_file = None
+            for file in os.listdir(temp_dir):
+                if file.endswith('.mp3'):
+                    downloaded_file = os.path.join(temp_dir, file)
+                    break
+            
+            if not downloaded_file or not os.path.exists(downloaded_file):
+                return jsonify({'error': 'Failed to extract audio'}), 500
+            
+            # Clean up title for filename
+            title = info.get('title', 'youtube_audio')
+            safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()[:50]
+            filename = f"{safe_title}.mp3"
+            
+            return send_file(
+                downloaded_file,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='audio/mpeg'
+            )
+    
+    except Exception as e:
+        logger.error(f"Error downloading audio: {str(e)}")
+        return jsonify({'error': f'Failed to download audio: {str(e)}'}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):

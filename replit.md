@@ -30,14 +30,19 @@ A comprehensive web application for downloading YouTube content with unlimited c
 - ✓ **APK Creation: Converted web app to Android APK using Capacitor**
 - ✓ **Mobile App Features: Native Android project with touch optimization**
 - ✓ **Build System: Complete Android project structure for APK generation**
+- ✓ **Next.js Conversion: Complete app converted to Next.js with React & TypeScript**
+- ✓ **Modern Architecture: Component-based with API routes and server-side rendering**
+- ✓ **Hybrid System: Next.js frontend with Flask backend proxy for YouTube processing**
 
 ## Project Architecture
-- **Backend**: Flask with yt-dlp for YouTube data extraction
-- **Frontend**: Custom cyberpunk theme with advanced CSS animations
+- **Frontend**: Next.js 14 with React 18 and TypeScript components
+- **Backend**: Flask with yt-dlp for YouTube data extraction (proxied via Next.js API)
+- **Styling**: Custom cyberpunk theme with CSS variables and advanced animations
 - **Video Processing**: yt-dlp handles format extraction and downloading
 - **File Handling**: Temporary files for secure video downloads
 - **Mobile App**: Capacitor-based Android APK with native features
 - **PWA Features**: Service worker, manifest, and offline support
+- **API Layer**: Next.js API routes proxy requests to Flask backend
 
 ## User Preferences
 - Wants unlimited video downloads without restrictions
@@ -46,9 +51,11 @@ A comprehensive web application for downloading YouTube content with unlimited c
 - Prefers E-LEAKxDOWN branding with custom logo from postimg.cc
 - **Latest request: "change full design of the app" - implemented cyberpunk theme**
 - **New request: "i want to make a apk of this app" - created Android APK**
+- **Latest request: "can the full app code to next.js" - converted to Next.js**
 - Values animated and responsive design elements
 - Wants cutting-edge, modern interface with advanced visual effects
 - Desires mobile app version for Android devices
+- Prefers modern React/Next.js framework over traditional Flask templates
 
 ## Key Technical Decisions
 - **yt-dlp over pytube**: More reliable for current YouTube API changes

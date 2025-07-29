@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-LEAKxDOWN - Ultimate YouTube Downloader</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-LEAKxDOWN">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link href="css/new_design.css" rel="stylesheet">
+    
+    <!-- Capacitor Core -->
+    <script type="module" src="https://unpkg.com/@capacitor/core@latest/dist/capacitor.min.js"></script>
+</head>
+<body>
+    <!-- Floating Navigation -->
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">
+            <img src="https://i.postimg.cc/ZKGmmSyr/a5f7295b-f621-4163-b66d-8edadf7721d8-removebg-preview-1-1.webp" 
+                 alt="E-LEAKxDOWN" class="brand-logo">
+            <span class="brand-text">E-LEAKxDOWN</span>
+        </a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-badge">
+                <i class="fas fa-infinity"></i> Unlimited Downloads
+            </div>
+            
+            <h1 class="hero-title">E-LEAKxDOWN</h1>
+            
+            <p class="hero-subtitle">
+                The most advanced YouTube downloader with unlimited capacity, 
+                high-quality video downloads, and MP3 audio extraction.
+            </p>
+            
+            <!-- Search Section -->
+            <div class="search-section">
+                <form id="urlForm" class="search-form">
+                    <input type="url" 
+                           id="youtubeUrl" 
+                           class="search-input" 
+                           placeholder="Paste your YouTube URL here..." 
+                           required>
+                    <button type="submit" class="search-button" id="submitBtn">
+                        <i class="fas fa-search"></i>
+                        <span>Analyze Video</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Animation -->
+    <div id="loadingIndicator" class="loading-container" style="display: none;">
+        <div class="cyber-loader"></div>
+        <div class="loading-text">Analyzing Video...</div>
+        <p style="color: var(--text-secondary);">Extracting video data and formats</p>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorContainer" style="display: none; padding: 20px; text-align: center;">
+        <div style="background: var(--bg-card); border-radius: var(--radius-lg); padding: 30px; margin: 0 20px; border: 2px solid #ef4444;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444; margin-bottom: 20px;"></i>
+            <div id="errorMessage" style="font-size: 1.2rem; color: var(--text-neon);"></div>
+        </div>
+    </div>
+
+    <!-- Video Information -->
+    <div id="videoInfoContainer" style="display: none; padding: 0 20px; max-width: 1200px; margin: 0 auto;">
+        <!-- Video Info Card -->
+        <div class="video-info-card">
+            <div class="video-header">
+                <div class="video-thumbnail-container">
+                    <img id="videoThumbnail" src="" alt="Video Thumbnail" class="video-thumbnail">
+                    <div class="thumbnail-overlay">
+                        <i class="fas fa-play play-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="video-details">
+                    <h2 id="videoTitle">Video Title</h2>
+                    
+                    <div class="video-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-user meta-icon"></i>
+                            <span id="videoAuthor">Channel Name</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock meta-icon"></i>
+                            <span id="videoDuration">Duration</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-eye meta-icon"></i>
+                            <span id="videoViews">Views</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar meta-icon"></i>
+                            <span id="videoPublished">Published</span>
+                        </div>
+                    </div>
+                    
+                    <p id="videoDescription" style="color: var(--text-secondary); line-height: 1.6;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Options -->
+        <div class="download-grid">
+            <!-- Thumbnail Download -->
+            <div class="download-card thumbnail-card">
+                <div class="card-header">
+                    <i class="fas fa-image card-icon"></i>
+                    <h3 class="card-title">Thumbnail</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quality-selector">
+                        <label class="quality-label">Resolution</label>
+                        <select id="thumbnailQuality" class="quality-select">
+                            <option value="default">Default (120x90)</option>
+                            <option value="medium">Medium (320x180)</option>
+                            <option value="high" selected>High (480x360)</option>
+                            <option value="standard">Standard (640x480)</option>
+                            <option value="maxres">Max Resolution (1280x720)</option>
+                        </select>
+                    </div>
+                    <button id="downloadThumbnailBtn" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download Thumbnail
+                    </button>
+                </div>
+            </div>
+
+            <!-- Video Download -->
+            <div class="download-card video-card">
+                <div class="card-header">
+                    <i class="fas fa-video card-icon"></i>
+                    <h3 class="card-title">Video</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quality-selector">
+                        <label class="quality-label">Quality & Format</label>
+                        <select id="videoQuality" class="quality-select">
+                            <option value="">Loading formats...</option>
+                        </select>
+                    </div>
+                    <button id="downloadVideoBtn" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download Video
+                    </button>
+                </div>
+            </div>
+
+            <!-- Audio Download -->
+            <div class="download-card audio-card">
+                <div class="card-header">
+                    <i class="fas fa-music card-icon"></i>
+                    <h3 class="card-title">Audio (MP3)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quality-selector">
+                        <label class="quality-label">Audio Quality</label>
+                        <select id="audioQuality" class="quality-select">
+                            <option value="bestaudio">Best Quality (192kbps)</option>
+                            <option value="worstaudio">Standard Quality (128kbps)</option>
+                        </select>
+                    </div>
+                    <button id="downloadAudioBtn" class="download-btn">
+                        <i class="fas fa-headphones"></i>
+                        Extract MP3
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-infinity feature-icon"></i>
+                    <h4 class="feature-title">Unlimited Downloads</h4>
+                    <p class="feature-description">Download as many videos as you want without any restrictions or limits.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-hd-video feature-icon"></i>
+                    <h4 class="feature-title">4K Quality</h4>
+                    <p class="feature-description">Support for HD, Full HD, 4K and all available video resolutions.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-headphones feature-icon"></i>
+                    <h4 class="feature-title">Audio Extraction</h4>
+                    <p class="feature-description">Extract high-quality MP3 audio files from any YouTube video.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <h4 class="feature-title">Lightning Fast</h4>
+                    <p class="feature-description">Advanced processing for quick downloads and audio extraction.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/mobile_app.js"></script>
+</body>
+</html>

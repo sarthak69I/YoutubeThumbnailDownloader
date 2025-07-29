@@ -1,0 +1,28 @@
+{
+    "name": "E-LEAKxDOWN - YouTube Downloader",
+    "short_name": "E-LEAKxDOWN",
+    "description": "Ultimate YouTube Video & Audio Downloader with unlimited downloads",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f23",
+    "theme_color": "#8b5cf6",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "https://i.postimg.cc/ZKGmmSyr/a5f7295b-f621-4163-b66d-8edadf7721d8-removebg-preview-1-1.webp",
+            "sizes": "192x192",
+            "type": "image/webp",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://i.postimg.cc/ZKGmmSyr/a5f7295b-f621-4163-b66d-8edadf7721d8-removebg-preview-1-1.webp",
+            "sizes": "512x512",
+            "type": "image/webp",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["utilities", "multimedia"],
+    "lang": "en",
+    "scope": "/",
+    "prefer_related_applications": false
+}

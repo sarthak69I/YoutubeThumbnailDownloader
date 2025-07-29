@@ -1,4 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+
+const execAsync = promisify(exec)
+
+interface VideoInfo {
+  title: string
+  author: string
+  duration_str: string
+  views: number
+  publish_date: string
+  description: string
+  thumbnails: {
+    default: string
+    medium: string
+    high: string
+    standard: string
+    maxres: string
+  }
+  video_streams: Array<{
+    format_id: string
+    resolution: string
+    fps: number
+    filesize: number
+    ext: string
+  }>
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,23 +36,86 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 })
     }
 
-    // Forward request to Flask backend
-    const flaskResponse = await fetch('http://localhost:5000/get_video_info', {
-      method: 'POST',
-      body: formData,
-    })
-
-    if (!flaskResponse.ok) {
-      throw new Error(`Flask server error: ${flaskResponse.status}`)
+    // Validate YouTube URL
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%?]{11})/
+    if (!youtubeRegex.test(url)) {
+      return NextResponse.json({ error: 'Invalid YouTube URL' }, { status: 400 })
     }
 
-    const data = await flaskResponse.json()
-    return NextResponse.json(data)
+    // Use yt-dlp to extract video information
+    const command = `yt-dlp --dump-json --no-download "${url}"`
+    
+    try {
+      const { stdout } = await execAsync(command, { timeout: 25000 })
+      const videoData = JSON.parse(stdout)
+
+      // Extract thumbnails
+      const thumbnails = {
+        default: videoData.thumbnail || '',
+        medium: videoData.thumbnail || '',
+        high: videoData.thumbnail || '',
+        standard: videoData.thumbnail || '',
+        maxres: videoData.thumbnail || ''
+      }
+
+      // Find thumbnail URLs of different qualities
+      if (videoData.thumbnails && Array.isArray(videoData.thumbnails)) {
+        videoData.thumbnails.forEach((thumb: any) => {
+          if (thumb.width <= 120) thumbnails.default = thumb.url
+          else if (thumb.width <= 320) thumbnails.medium = thumb.url
+          else if (thumb.width <= 480) thumbnails.high = thumb.url
+          else if (thumb.width <= 640) thumbnails.standard = thumb.url
+          else thumbnails.maxres = thumb.url
+        })
+      }
+
+      // Extract video streams
+      const video_streams: any[] = []
+      if (videoData.formats && Array.isArray(videoData.formats)) {
+        videoData.formats
+          .filter((format: any) => format.vcodec !== 'none' && format.height)
+          .sort((a: any, b: any) => (b.height || 0) - (a.height || 0))
+          .slice(0, 10) // Limit to top 10 formats
+          .forEach((format: any) => {
+            video_streams.push({
+              format_id: format.format_id,
+              resolution: format.height ? format.height.toString() : 'Unknown',
+              fps: format.fps || 30,
+              filesize: format.filesize || 0,
+              ext: format.ext || 'mp4'
+            })
+          })
+      }
+
+      const videoInfo: VideoInfo = {
+        title: videoData.title || 'Unknown Title',
+        author: videoData.uploader || videoData.channel || 'Unknown Author',
+        duration_str: videoData.duration_string || 'Unknown',
+        views: videoData.view_count || 0,
+        publish_date: videoData.upload_date || '',
+        description: videoData.description || '',
+        thumbnails,
+        video_streams
+      }
+
+      return NextResponse.json({ video_info: videoInfo })
+
+    } catch (execError: any) {
+      console.error('yt-dlp error:', execError)
+      
+      if (execError.message.includes('timeout')) {
+        return NextResponse.json({ error: 'Request timeout. Please try again.' }, { status: 408 })
+      }
+      
+      return NextResponse.json({ 
+        error: 'Failed to extract video information. The video may be private, deleted, or unsupported.' 
+      }, { status: 400 })
+    }
 
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch video information' },
+      { error: 'Internal server error. Please try again.' },
       { status: 500 }
     )
   }

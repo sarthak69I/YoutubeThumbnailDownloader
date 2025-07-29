@@ -33,16 +33,19 @@ A comprehensive web application for downloading YouTube content with unlimited c
 - ✓ **Next.js Conversion: Complete app converted to Next.js with React & TypeScript**
 - ✓ **Modern Architecture: Component-based with API routes and server-side rendering**
 - ✓ **Hybrid System: Next.js frontend with Flask backend proxy for YouTube processing**
+- ✓ **Vercel Optimization: Converted Flask backend to Vercel serverless functions**
+- ✓ **Pure Serverless: Eliminated Flask dependency, full yt-dlp integration in Next.js**
+- ✓ **Always-On Deployment: Ready for unlimited, always-available hosting on Vercel**
 
 ## Project Architecture
 - **Frontend**: Next.js 14 with React 18 and TypeScript components
-- **Backend**: Flask with yt-dlp for YouTube data extraction (proxied via Next.js API)
+- **Backend**: Vercel serverless functions with direct yt-dlp integration
 - **Styling**: Custom cyberpunk theme with CSS variables and advanced animations
-- **Video Processing**: yt-dlp handles format extraction and downloading
-- **File Handling**: Temporary files for secure video downloads
+- **Video Processing**: yt-dlp serverless functions for format extraction and downloading
+- **File Handling**: Temporary files with automatic cleanup in serverless environment
 - **Mobile App**: Capacitor-based Android APK with native features
 - **PWA Features**: Service worker, manifest, and offline support
-- **API Layer**: Next.js API routes proxy requests to Flask backend
+- **API Layer**: Next.js API routes with embedded yt-dlp processing
 
 ## User Preferences
 - Wants unlimited video downloads without restrictions

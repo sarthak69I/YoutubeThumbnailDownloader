@@ -3,6 +3,8 @@ import logging
 import re
 import requests
 import json
+import subprocess
+import yt_dlp
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, render_template, request, jsonify, send_file, abort, redirect, url_for
 import io
@@ -56,7 +58,7 @@ def index():
 
 @app.route('/get_video_info', methods=['POST'])
 def get_video_info():
-    """Get video information from YouTube URL using a more reliable direct approach"""
+    """Get video information from YouTube URL using yt-dlp"""
     url = request.form.get('url', '')
     
     if not url:
@@ -70,54 +72,69 @@ def get_video_info():
         if not video_id:
             return jsonify({'error': 'Could not extract video ID from URL'}), 400
         
-        # Get thumbnail URLs (these are reliable and don't need an API)
-        thumbnails = {
-            'default': f"https://img.youtube.com/vi/{video_id}/default.jpg",
-            'high': f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
-            'medium': f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg",
-            'standard': f"https://img.youtube.com/vi/{video_id}/sddefault.jpg",
-            'maxres': f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+        # Configure yt-dlp options
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'extractaudio': False,
+            'format': 'best[height<=720]',
         }
         
-        # Check if thumbnails exist by making a request to the high quality one
-        response = requests.get(thumbnails['high'])
-        if response.status_code != 200:
-            return jsonify({'error': 'Video not found or not accessible'}), 404
-        
-        # For demo purposes, provide some sample stream options
-        # In a real implementation, we would need to use pytube or another method to get real stream info
-        streams = [
-            {
-                'itag': '18',
-                'resolution': '360p',
-                'mime_type': 'video/mp4',
-                'size_mb': 'Unknown'
-            },
-            {
-                'itag': '22',
-                'resolution': '720p',
-                'mime_type': 'video/mp4',
-                'size_mb': 'Unknown'
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Extract video information
+            info = ydl.extract_info(url, download=False)
+            
+            # Get thumbnail URLs
+            thumbnails = {
+                'default': f"https://img.youtube.com/vi/{video_id}/default.jpg",
+                'high': f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+                'medium': f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg",
+                'standard': f"https://img.youtube.com/vi/{video_id}/sddefault.jpg",
+                'maxres': f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
             }
-        ]
-        
-        # Create a simplified video info response
-        video_info = {
-            'title': f"YouTube Video ({video_id})",
-            'author': 'YouTube Creator',
-            'length': 0,
-            'views': 0,
-            'publish_date': 'Unknown',
-            'thumbnails': thumbnails,
-            'streams': streams,
-            'video_id': video_id
-        }
-        
-        return jsonify({'success': True, 'video_info': video_info})
+            
+            # Extract available formats/streams
+            streams = []
+            if 'formats' in info:
+                for fmt in info['formats']:
+                    if fmt.get('vcodec') != 'none' and fmt.get('acodec') != 'none':  # Has both video and audio
+                        streams.append({
+                            'format_id': fmt.get('format_id', ''),
+                            'resolution': fmt.get('height', 'Unknown'),
+                            'ext': fmt.get('ext', 'mp4'),
+                            'filesize': fmt.get('filesize', 0),
+                            'format_note': fmt.get('format_note', ''),
+                            'fps': fmt.get('fps', 0)
+                        })
+            
+            # Sort streams by resolution (highest first)
+            streams = sorted(streams, key=lambda x: int(x['resolution']) if str(x['resolution']).isdigit() else 0, reverse=True)
+            
+            # Take only the first 6 streams to avoid clutter
+            streams = streams[:6]
+            
+            # Format duration
+            duration = info.get('duration', 0)
+            duration_str = f"{duration // 60}:{duration % 60:02d}" if duration else "Unknown"
+            
+            # Create video info response
+            video_info = {
+                'title': info.get('title', f'YouTube Video ({video_id})'),
+                'author': info.get('uploader', 'YouTube Creator'),
+                'length': duration,
+                'views': info.get('view_count', 0),
+                'publish_date': info.get('upload_date', 'Unknown'),
+                'thumbnails': thumbnails,
+                'streams': streams,
+                'video_id': video_id,
+                'duration_str': duration_str
+            }
+            
+            return jsonify({'success': True, 'video_info': video_info})
     
     except Exception as e:
         logger.error(f"Error getting video info: {str(e)}")
-        return jsonify({'error': f'An error occurred: {str(e)}. Please try a different video URL.'}), 500
+        return jsonify({'error': f'Unable to fetch video information. Please check the URL and try again.'}), 500
 
 @app.route('/download_thumbnail', methods=['GET'])
 def download_thumbnail():
@@ -169,20 +186,69 @@ def download_thumbnail():
 
 @app.route('/download_video', methods=['GET'])
 def download_video():
-    """Download YouTube video"""
+    """Download YouTube video using yt-dlp"""
     try:
-        video_id = request.args.get('video_id')
+        url = request.args.get('url')
+        format_id = request.args.get('format_id', 'best[height<=720]')
         
+        if not url:
+            return jsonify({'error': 'Missing video URL'}), 400
+        
+        video_id = get_video_id(url)
         if not video_id:
-            return jsonify({'error': 'Missing video ID'}), 400
+            return jsonify({'error': 'Invalid video URL'}), 400
         
-        # For this simplified version, we'll redirect to a YT download service
-        # In a real implementation, you would need a more reliable video downloading method
-        return render_template('video_download.html', video_id=video_id)
+        # Create temporary directory for download
+        temp_dir = tempfile.mkdtemp()
+        
+        # Configure yt-dlp options for download
+        ydl_opts = {
+            'format': format_id,
+            'outtmpl': os.path.join(temp_dir, f'{video_id}.%(ext)s'),
+            'quiet': True,
+            'no_warnings': True,
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Download the video
+            info = ydl.extract_info(url, download=True)
+            
+            # Find the downloaded file
+            downloaded_file = None
+            for file in os.listdir(temp_dir):
+                if file.startswith(video_id):
+                    downloaded_file = os.path.join(temp_dir, file)
+                    break
+            
+            if not downloaded_file or not os.path.exists(downloaded_file):
+                return jsonify({'error': 'Failed to download video'}), 500
+            
+            # Clean up title for filename
+            title = info.get('title', 'youtube_video')
+            safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()[:50]
+            
+            # Get file extension
+            _, ext = os.path.splitext(downloaded_file)
+            filename = f"{safe_title}{ext}"
+            
+            def remove_file():
+                try:
+                    if os.path.exists(downloaded_file):
+                        os.remove(downloaded_file)
+                    os.rmdir(temp_dir)
+                except:
+                    pass
+            
+            return send_file(
+                downloaded_file,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='video/mp4'
+            )
     
     except Exception as e:
-        logger.error(f"Error with video download: {str(e)}")
-        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        logger.error(f"Error downloading video: {str(e)}")
+        return jsonify({'error': f'Failed to download video: {str(e)}'}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):

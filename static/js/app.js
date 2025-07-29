@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM elements
+    // DOM elements - with null checks
     const urlForm = document.getElementById('urlForm');
     const youtubeUrl = document.getElementById('youtubeUrl');
     const submitBtn = document.getElementById('submitBtn');
@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const downloadThumbnailBtn = document.getElementById('downloadThumbnailBtn');
     const videoQuality = document.getElementById('videoQuality');
     const downloadVideoBtn = document.getElementById('downloadVideoBtn');
+
+    // Check if essential elements exist
+    if (!urlForm || !youtubeUrl || !submitBtn) {
+        console.error('Essential DOM elements not found');
+        return;
+    }
 
     // Store video data
     let currentVideoData = null;
@@ -100,12 +106,21 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Populate video quality dropdown
             videoQuality.innerHTML = '';
-            currentVideoData.streams.forEach(stream => {
+            if (currentVideoData.streams && currentVideoData.streams.length > 0) {
+                currentVideoData.streams.forEach(stream => {
+                    const option = document.createElement('option');
+                    option.value = stream.format_id;
+                    const resolution = stream.resolution !== 'Unknown' ? stream.resolution + 'p' : 'Unknown';
+                    const filesize = stream.filesize ? Math.round(stream.filesize / (1024 * 1024)) + ' MB' : 'Unknown size';
+                    option.textContent = `${resolution} (${stream.ext}) - ${filesize}`;
+                    videoQuality.appendChild(option);
+                });
+            } else {
                 const option = document.createElement('option');
-                option.value = stream.itag;
-                option.textContent = `${stream.resolution} (${stream.mime_type}) - ~${stream.size_mb} MB`;
+                option.value = 'best';
+                option.textContent = 'Best Quality Available';
                 videoQuality.appendChild(option);
-            });
+            }
             
             // Show video information
             videoInfoContainer.classList.remove('d-none');
@@ -145,8 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const selectedItag = videoQuality.value;
-        if (!selectedItag) {
+        const selectedFormatId = videoQuality.value;
+        if (!selectedFormatId) {
             showError("Please select a video quality.");
             return;
         }
@@ -155,14 +170,15 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadVideoBtn.disabled = true;
         downloadVideoBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Preparing Download...';
         
-        // Start download using video_id
-        window.location.href = `/download_video?video_id=${currentVideoId}`;
+        // Start download using original URL and format_id
+        const originalUrl = youtubeUrl.value;
+        window.location.href = `/download_video?url=${encodeURIComponent(originalUrl)}&format_id=${selectedFormatId}`;
         
-        // Re-enable button after 3 seconds
+        // Re-enable button after 5 seconds
         setTimeout(() => {
             downloadVideoBtn.disabled = false;
             downloadVideoBtn.innerHTML = '<i class="fas fa-download me-1"></i> Download Video';
-        }, 3000);
+        }, 5000);
     });
 
     // Preview thumbnail when quality changes

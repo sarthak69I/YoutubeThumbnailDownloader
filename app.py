@@ -6,7 +6,7 @@ import json
 import subprocess
 import yt_dlp
 from urllib.parse import urlparse, parse_qs
-from flask import Flask, render_template, request, jsonify, send_file, abort, redirect, url_for
+from flask import Flask, render_template, request, jsonify, send_file, abort, redirect, url_for, send_from_directory
 import io
 import tempfile
 
@@ -328,6 +328,37 @@ def download_audio():
     except Exception as e:
         logger.error(f"Error downloading audio: {str(e)}")
         return jsonify({'error': f'Failed to download audio: {str(e)}'}), 500
+
+@app.route('/sw.js')
+def service_worker():
+    """Serve the service worker file"""
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+
+@app.route('/manifest.json')
+def manifest():
+    """Serve the PWA manifest"""
+    manifest_data = {
+        "name": "E-LEAKxDOWN - YouTube Downloader",
+        "short_name": "E-LEAKxDOWN",
+        "description": "Ultimate YouTube Video & Audio Downloader with unlimited downloads",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#0a0a0a",
+        "theme_color": "#00ff88",
+        "orientation": "portrait-primary",
+        "icons": [
+            {
+                "src": "https://i.postimg.cc/ZKGmmSyr/a5f7295b-f621-4163-b66d-8edadf7721d8-removebg-preview-1-1.webp",
+                "sizes": "192x192",
+                "type": "image/webp",
+                "purpose": "any maskable"
+            }
+        ],
+        "categories": ["utilities", "multimedia"],
+        "lang": "en",
+        "scope": "/"
+    }
+    return jsonify(manifest_data)
 
 @app.errorhandler(404)
 def page_not_found(e):

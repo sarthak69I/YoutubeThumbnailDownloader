@@ -29,6 +29,53 @@ body {
     overflow-x: hidden;
 }
 
+/* Mobile-first optimizations */
+.mobile-optimized {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 255, 136, 0.2);
+    touch-action: manipulation;
+}
+
+.mobile-nav {
+    backdrop-filter: blur(10px);
+    background: rgba(5, 5, 5, 0.95) !important;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.main-content {
+    min-height: calc(100vh - 200px);
+}
+
+/* Touch-friendly buttons */
+.download-btn,
+.search-btn,
+.form-select {
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+/* Improved tap targets */
+.nav-link,
+.navbar-brand,
+.btn-close {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PWA and mobile specific styles */
+@media (display-mode: standalone) {
+    .mobile-nav {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .main-content {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
 /* Hero Section */
 .hero-section {
     background: var(--gradient-dark);
@@ -524,55 +571,368 @@ footer {
     font-weight: 500;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 1200px) {
+    .hero-section {
+        min-height: 60vh;
+        padding: 40px 0;
+    }
+    
     .brand-text-large {
-        font-size: 2.5rem;
+        font-size: 3.5rem;
+    }
+    
+    .download-card .card-body {
+        padding: 25px;
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-section {
+        min-height: 50vh;
+        padding: 30px 0;
+    }
+    
+    .brand-text-large {
+        font-size: 3rem;
     }
     
     .hero-subtitle {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
     
     .video-details {
         padding-left: 0;
-        margin-top: 30px;
+        margin-top: 20px;
     }
     
     .video-meta {
-        justify-content: center;
+        justify-content: flex-start;
+        gap: 15px;
+    }
+    
+    .download-section {
+        margin-top: 30px;
     }
     
     .download-card {
+        margin-bottom: 25px;
+        height: auto;
+    }
+    
+    .features-section {
+        margin-top: 60px;
+        padding: 40px 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 60vh;
+        padding: 20px 0;
+    }
+    
+    .hero-logo {
+        height: 70px;
+        margin-bottom: 20px;
+    }
+    
+    .brand-text-large {
+        font-size: 2.8rem;
+        line-height: 1.1;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.2rem;
         margin-bottom: 30px;
+    }
+    
+    .search-container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+    
+    .input-container {
+        padding: 6px;
+        border-radius: 20px;
+    }
+    
+    .search-input {
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+    
+    .search-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 1.1rem;
+    }
+    
+    .video-card {
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .video-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+    
+    .video-meta {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+    
+    .meta-item {
+        font-size: 0.9rem;
+    }
+    
+    .download-card .card-header {
+        padding: 20px 15px;
+    }
+    
+    .download-card .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .download-card .card-header i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .download-card .card-body {
+        padding: 20px 15px;
+    }
+    
+    .download-btn {
+        padding: 12px 15px;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .features-section {
+        margin-top: 50px;
+        padding: 40px 15px;
+        border-radius: 20px;
+    }
+    
+    .feature-item {
+        padding: 25px 15px;
+        margin-bottom: 20px;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .feature-item h4 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .feature-item p {
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 576px) {
+    .hero-section {
+        min-height: 70vh;
+        padding: 15px 0;
+    }
+    
     .hero-logo {
         height: 60px;
+        margin-bottom: 15px;
     }
     
     .brand-text-large {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        margin-bottom: 15px;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        padding: 0 20px;
+    }
+    
+    .search-container {
+        padding: 0 10px;
+    }
+    
+    .input-container {
+        padding: 5px;
+        border-radius: 18px;
     }
     
     .search-input {
-        font-size: 1rem;
-        padding: 12px 15px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
     }
     
     .search-btn {
-        width: 45px;
-        height: 45px;
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+        border-radius: 16px;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .loading-text {
+        font-size: 1.3rem;
+        margin-top: 20px;
+    }
+    
+    .loading-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .video-card {
+        padding: 15px;
+        border-radius: 15px;
+    }
+    
+    .thumbnail-wrapper {
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .video-thumbnail {
+        border-radius: 12px;
     }
     
     .video-title {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+    
+    .video-description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .download-section {
+        margin-top: 25px;
+    }
+    
+    .download-card {
+        margin-bottom: 20px;
+        border-radius: 15px;
+    }
+    
+    .download-card .card-header {
+        padding: 15px 10px;
+    }
+    
+    .download-card .card-header i {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .download-card .card-header h3 {
+        font-size: 1rem;
+    }
+    
+    .download-card .card-body {
+        padding: 15px 10px;
+    }
+    
+    .form-select {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    
+    .download-btn {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-radius: 12px;
+        letter-spacing: 0.3px;
+    }
+    
+    .features-section {
+        margin-top: 40px;
+        padding: 30px 10px;
+        border-radius: 15px;
+    }
+    
+    .feature-item {
+        padding: 20px 10px;
+        margin-bottom: 15px;
+    }
+    
+    .feature-icon {
+        font-size: 2.2rem;
+        margin-bottom: 12px;
+    }
+    
+    .feature-item h4 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .feature-item p {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .error-card {
+        padding: 20px 15px;
+        border-radius: 12px;
+    }
+    
+    .error-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .error-message {
+        font-size: 1rem;
     }
 }
 
-/* Animation Classes */
+@media (max-width: 400px) {
+    .brand-text-large {
+        font-size: 1.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+        padding: 0 15px;
+    }
+    
+    .video-title {
+        font-size: 1.2rem;
+    }
+    
+    .download-card .card-header h3 {
+        font-size: 0.95rem;
+    }
+    
+    .download-btn {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+    
+    .feature-item h4 {
+        font-size: 1rem;
+    }
+    
+    .feature-item p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Enhanced Animation Classes */
 .fade-in {
     animation: fadeIn 0.6s ease-out;
 }
@@ -601,4 +961,140 @@ footer {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.7s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.7s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.scale-in {
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.bounce-in {
+    animation: bounceIn 0.8s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.rotate-in {
+    animation: rotateIn 0.6s ease-out;
+}
+
+@keyframes rotateIn {
+    from {
+        opacity: 0;
+        transform: rotate(-180deg) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(0deg) scale(1);
+    }
+}
+
+/* Staggered animations for cards */
+.download-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.download-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.download-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.feature-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.feature-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.feature-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.feature-item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+/* Hover animations */
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+}
+
+.hover-glow {
+    transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: var(--shadow-glow);
+}
+
+.hover-scale {
+    transition: all 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.02);
 }

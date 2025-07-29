@@ -55,9 +55,37 @@ document.addEventListener('DOMContentLoaded', function() {
         return (match && match[7].length === 11) ? match[7] : null;
     }
 
-    // Add fade-in animation to elements
+    // Add animations to elements
     function addFadeInAnimation(element) {
         element.classList.add('fade-in');
+    }
+    
+    function addScaleInAnimation(element) {
+        element.classList.add('scale-in');
+    }
+    
+    function addSlideUpAnimation(element) {
+        element.classList.add('slide-up');
+    }
+    
+    // Animate elements on scroll
+    function animateOnScroll() {
+        const elements = document.querySelectorAll('.download-card, .feature-item');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        elements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
     }
 
     // Handle form submission
@@ -147,11 +175,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Show/Hide functions
+
+    // Show/Hide functions with animations
     function showLoading() {
         if (loadingIndicator) {
             loadingIndicator.classList.remove('d-none');
-            addFadeInAnimation(loadingIndicator);
+            addScaleInAnimation(loadingIndicator);
         }
     }
 
@@ -175,7 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function showVideoInfo() {
         if (videoInfoContainer) {
             videoInfoContainer.classList.remove('d-none');
-            addFadeInAnimation(videoInfoContainer);
+            addSlideUpAnimation(videoInfoContainer);
+            // Initialize scroll animations after showing video info
+            setTimeout(animateOnScroll, 100);
         }
     }
 
@@ -305,4 +336,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (container) container.style.transform = 'translateY(0)';
         });
     }
+
+    // Initialize animations on page load
+    setTimeout(() => {
+        animateOnScroll();
+        
+        // Add staggered animation to feature items
+        const featureItems = document.querySelectorAll('.feature-item');
+        featureItems.forEach((item, index) => {
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }, 500);
 });

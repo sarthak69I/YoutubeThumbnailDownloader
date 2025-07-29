@@ -30,12 +30,15 @@ export async function GET(request: NextRequest) {
     const timestamp = Date.now()
     const outputTemplate = path.join(tempDir, `video_${timestamp}.%(ext)s`)
     
-    // Construct yt-dlp command for video download
+    // Construct yt-dlp command for video download with 720p limit
     let command = `yt-dlp --format "${formatId}" --output "${outputTemplate}" "${url}"`
     
-    // Add quality fallbacks
+    // Add quality fallbacks with maximum 720p for serverless compatibility
     if (formatId === 'best') {
-      command = `yt-dlp --format "best[height<=1080]/best" --output "${outputTemplate}" "${url}"`
+      command = `yt-dlp --format "best[height<=720]/best[height<=480]/worst" --output "${outputTemplate}" "${url}"`
+    } else {
+      // Ensure any specific format doesn't exceed 720p
+      command = `yt-dlp --format "${formatId}[height<=720]/${formatId}/best[height<=720]/best[height<=480]" --output "${outputTemplate}" "${url}"`
     }
 
     try {

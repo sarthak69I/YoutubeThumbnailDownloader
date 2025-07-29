@@ -23,7 +23,9 @@ interface VideoInfo {
     resolution: string
     fps: number
     filesize: number
+    filesize_mb: number
     ext: string
+    recommended: boolean
   }>
 }
 
@@ -69,22 +71,42 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Extract video streams
+      // Extract video streams with 720p maximum for Vercel compatibility
       const video_streams: any[] = []
       if (videoData.formats && Array.isArray(videoData.formats)) {
         videoData.formats
-          .filter((format: any) => format.vcodec !== 'none' && format.height)
+          .filter((format: any) => 
+            format.vcodec !== 'none' && 
+            format.height && 
+            format.height <= 720 // Limit to 720p maximum
+          )
           .sort((a: any, b: any) => (b.height || 0) - (a.height || 0))
-          .slice(0, 10) // Limit to top 10 formats
+          .slice(0, 8) // Limit to top 8 formats under 720p
           .forEach((format: any) => {
+            const fileSizeMB = format.filesize ? Math.round(format.filesize / 1024 / 1024) : 0
             video_streams.push({
               format_id: format.format_id,
-              resolution: format.height ? format.height.toString() : 'Unknown',
+              resolution: `${format.height}p`,
               fps: format.fps || 30,
               filesize: format.filesize || 0,
-              ext: format.ext || 'mp4'
+              filesize_mb: fileSizeMB,
+              ext: format.ext || 'mp4',
+              recommended: fileSizeMB > 0 && fileSizeMB <= 200 // Mark files under 200MB as recommended
             })
           })
+      }
+
+      // Add fallback formats if no suitable formats found
+      if (video_streams.length === 0) {
+        video_streams.push({
+          format_id: 'best',
+          resolution: '720p',
+          fps: 30,
+          filesize: 0,
+          filesize_mb: 0,
+          ext: 'mp4',
+          recommended: true
+        })
       }
 
       const videoInfo: VideoInfo = {

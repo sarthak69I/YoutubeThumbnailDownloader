@@ -423,6 +423,56 @@ body::before {
   }
 }
 
+/* Video Quality Options */
+.cyber-input option {
+  background: var(--bs-dark);
+  color: var(--bs-light);
+  padding: 0.5rem;
+}
+
+.cyber-input option:hover {
+  background: var(--cyber-pink);
+  color: var(--bs-dark);
+}
+
+/* Format badges and indicators */
+.format-quality .rec-badge {
+  color: var(--cyber-green);
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.format-size.large-file {
+  color: var(--cyber-orange);
+  font-weight: bold;
+}
+
+.format-btn.recommended {
+  border: 2px solid var(--cyber-green);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.format-btn.recommended:hover {
+  border-color: var(--cyber-green);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+/* Download size indicators */
+.download-size-info {
+  font-size: 0.85rem;
+  color: var(--cyber-blue);
+  margin-top: 0.25rem;
+}
+
+.size-warning {
+  color: var(--cyber-orange);
+  font-weight: bold;
+}
+
+.size-recommended {
+  color: var(--cyber-green);
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   :root {

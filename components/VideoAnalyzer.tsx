@@ -21,7 +21,9 @@ interface VideoInfo {
     resolution: string
     fps: number
     filesize: number
+    filesize_mb: number
     ext: string
+    recommended: boolean
   }>
 }
 
@@ -300,19 +302,21 @@ export default function VideoAnalyzer() {
                     >
                       {videoInfo.video_streams.length > 0 ? (
                         videoInfo.video_streams.map((stream) => {
-                          const resolution = stream.resolution !== 'Unknown' ? `${stream.resolution}p` : 'Unknown'
-                          const filesize = stream.filesize ? `${Math.round(stream.filesize / (1024 * 1024))} MB` : 'Unknown size'
+                          const resolution = stream.resolution
+                          const filesize = stream.filesize_mb ? `${stream.filesize_mb} MB` : 'Unknown size'
                           const fps = stream.fps ? ` ${stream.fps}fps` : ''
                           const format = stream.ext ? ` (${stream.ext.toUpperCase()})` : ''
+                          const recommended = stream.recommended ? ' ✓ Recommended' : ''
+                          const sizeWarning = stream.filesize_mb > 200 ? ' ⚠️ Large file' : ''
                           
                           return (
                             <option key={stream.format_id} value={stream.format_id}>
-                              {`${resolution}${fps}${format} - ${filesize}`}
+                              {`${resolution}${fps}${format} - ${filesize}${recommended}${sizeWarning}`}
                             </option>
                           )
                         })
                       ) : (
-                        <option value="best">Best Quality Available</option>
+                        <option value="best">Best Quality Available (720p max)</option>
                       )}
                     </select>
                   </div>

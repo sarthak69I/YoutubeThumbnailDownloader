@@ -34,11 +34,15 @@ export async function GET(request: NextRequest) {
     let command = `yt-dlp --format "${formatId}" --output "${outputTemplate}" "${url}"`
     
     // Add quality fallbacks with maximum 720p for serverless compatibility
+    // Prioritize smaller files for slow connections
     if (formatId === 'best') {
-      command = `yt-dlp --format "best[height<=720]/best[height<=480]/worst" --output "${outputTemplate}" "${url}"`
+      command = `yt-dlp --format "best[height<=720][filesize<=300M]/best[height<=480][filesize<=150M]/worst" --output "${outputTemplate}" "${url}"`
+    } else if (formatId === 'slow_connection') {
+      // Special format for slow connections - prioritize smaller files
+      command = `yt-dlp --format "best[height<=480][filesize<=100M]/best[height<=360]/worst" --output "${outputTemplate}" "${url}"`
     } else {
-      // Ensure any specific format doesn't exceed 720p
-      command = `yt-dlp --format "${formatId}[height<=720]/${formatId}/best[height<=720]/best[height<=480]" --output "${outputTemplate}" "${url}"`
+      // Ensure any specific format doesn't exceed 720p and add size limits
+      command = `yt-dlp --format "${formatId}[height<=720][filesize<=300M]/${formatId}/best[height<=720]/best[height<=480]" --output "${outputTemplate}" "${url}"`
     }
 
     try {

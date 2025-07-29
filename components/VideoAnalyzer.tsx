@@ -306,12 +306,20 @@ export default function VideoAnalyzer() {
                           const filesize = stream.filesize_mb ? `${stream.filesize_mb} MB` : 'Unknown size'
                           const fps = stream.fps ? ` ${stream.fps}fps` : ''
                           const format = stream.ext ? ` (${stream.ext.toUpperCase()})` : ''
-                          const recommended = stream.recommended ? ' ✓ Recommended' : ''
-                          const sizeWarning = stream.filesize_mb > 200 ? ' ⚠️ Large file' : ''
+                          
+                          let label = ''
+                          if (stream.format_id === 'slow_connection') {
+                            label = `${resolution} - Slow Internet Optimized ⚡ Fast`
+                          } else {
+                            const recommended = stream.recommended ? ' ✓ Recommended' : ''
+                            const sizeWarning = stream.filesize_mb > 200 ? ' ⚠️ Large file' : ''
+                            const slowWarning = stream.filesize_mb > 100 ? ' 🐌 Slow internet may timeout' : ''
+                            label = `${resolution}${fps}${format} - ${filesize}${recommended}${sizeWarning}${slowWarning}`
+                          }
                           
                           return (
                             <option key={stream.format_id} value={stream.format_id}>
-                              {`${resolution}${fps}${format} - ${filesize}${recommended}${sizeWarning}`}
+                              {label}
                             </option>
                           )
                         })
@@ -319,6 +327,16 @@ export default function VideoAnalyzer() {
                         <option value="best">Best Quality Available (720p max)</option>
                       )}
                     </select>
+                  </div>
+                  
+                  {/* Connection Speed Guidance */}
+                  <div className="mb-3">
+                    <div className="alert alert-info small">
+                      <strong>Connection Tips:</strong><br/>
+                      • Slow internet? Choose "Slow Internet Optimized"<br/>
+                      • Files over 100MB may timeout on slow connections<br/>
+                      • Audio extraction always works on any speed
+                    </div>
                   </div>
                   <button
                     className="btn btn-neon w-100"

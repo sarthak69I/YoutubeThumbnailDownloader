@@ -473,6 +473,22 @@ body::before {
   color: var(--cyber-green);
 }
 
+/* Connection speed guidance */
+.alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius-md);
+  color: #93c5fd;
+  padding: 12px 16px;
+  margin: 10px 0;
+  backdrop-filter: var(--blur-glass);
+  font-size: 0.85rem;
+}
+
+.alert-info strong {
+  color: var(--cyber-blue);
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   :root {

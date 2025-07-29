@@ -109,6 +109,17 @@ export async function POST(request: NextRequest) {
         })
       }
 
+      // Add special slow connection option
+      video_streams.unshift({
+        format_id: 'slow_connection',
+        resolution: '480p',
+        fps: 30,
+        filesize: 0,
+        filesize_mb: 50, // Estimate for slow connections
+        ext: 'mp4',
+        recommended: true
+      })
+
       const videoInfo: VideoInfo = {
         title: videoData.title || 'Unknown Title',
         author: videoData.uploader || videoData.channel || 'Unknown Author',

@@ -16,13 +16,18 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      // Fetch the thumbnail image directly
+      // Fetch the thumbnail image directly with AbortController for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000)
+      
       const imageResponse = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; E-LEAKxDOWN/1.0)',
         },
-        timeout: 10000
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
 
       if (!imageResponse.ok) {
         throw new Error(`Failed to fetch thumbnail: ${imageResponse.status}`)
@@ -53,7 +58,7 @@ export async function GET(request: NextRequest) {
     } catch (fetchError: any) {
       console.error('Thumbnail fetch error:', fetchError)
       
-      if (fetchError.message.includes('timeout')) {
+      if (fetchError.name === 'AbortError' || fetchError.message.includes('timeout')) {
         return NextResponse.json({ 
           error: 'Thumbnail download timeout. Please try again.' 
         }, { status: 408 })

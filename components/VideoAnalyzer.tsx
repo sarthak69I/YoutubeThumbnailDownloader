@@ -121,14 +121,24 @@ export default function VideoAnalyzer() {
           break
       }
 
-      // Create download link
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.download = filename
-      link.target = '_blank'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      if (type === 'thumbnail') {
+        // Direct download for thumbnails (works perfectly on Vercel)
+        const link = document.createElement('a')
+        link.href = downloadUrl
+        link.download = filename
+        link.target = '_blank'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        // For video and audio, show the current limitation
+        const response = await fetch(downloadUrl)
+        const data = await response.json()
+        
+        if (data.error) {
+          setError(`${data.error} ${data.suggestion || ''}`)
+        }
+      }
 
     } catch (err) {
       console.error('Download error:', err)

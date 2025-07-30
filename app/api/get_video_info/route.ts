@@ -1,8 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { exec } from 'child_process'
-import { promisify } from 'util'
-
-const execAsync = promisify(exec)
 
 interface VideoInfo {
   title: string
@@ -44,73 +40,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid YouTube URL' }, { status: 400 })
     }
 
-    // Use yt-dlp to extract video information
-    const command = `yt-dlp --dump-json --no-download "${url}"`
-    
+    // Extract video ID from YouTube URL
+    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/)
+    if (!videoIdMatch) {
+      return NextResponse.json({ error: 'Could not extract video ID from URL' }, { status: 400 })
+    }
+    const videoId = videoIdMatch[1]
+
+    // Use YouTube's oEmbed API and other public APIs for video information
     try {
-      const { stdout } = await execAsync(command, { timeout: 25000 })
-      const videoData = JSON.parse(stdout)
+      // Get basic video info from oEmbed API
+      const oembedResponse = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+      if (!oembedResponse.ok) {
+        throw new Error('Video not found or private')
+      }
+      const oembedData = await oembedResponse.json()
 
-      // Extract thumbnails
+      // Extract thumbnails from YouTube's standard thumbnail URLs
       const thumbnails = {
-        default: videoData.thumbnail || '',
-        medium: videoData.thumbnail || '',
-        high: videoData.thumbnail || '',
-        standard: videoData.thumbnail || '',
-        maxres: videoData.thumbnail || ''
+        default: `https://img.youtube.com/vi/${videoId}/default.jpg`,
+        medium: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+        high: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+        standard: `https://img.youtube.com/vi/${videoId}/sddefault.jpg`,
+        maxres: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
       }
 
-      // Find thumbnail URLs of different qualities
-      if (videoData.thumbnails && Array.isArray(videoData.thumbnails)) {
-        videoData.thumbnails.forEach((thumb: any) => {
-          if (thumb.width <= 120) thumbnails.default = thumb.url
-          else if (thumb.width <= 320) thumbnails.medium = thumb.url
-          else if (thumb.width <= 480) thumbnails.high = thumb.url
-          else if (thumb.width <= 640) thumbnails.standard = thumb.url
-          else thumbnails.maxres = thumb.url
-        })
-      }
-
-      // Extract video streams with 720p maximum for Vercel compatibility
-      const video_streams: any[] = []
-      if (videoData.formats && Array.isArray(videoData.formats)) {
-        videoData.formats
-          .filter((format: any) => 
-            format.vcodec !== 'none' && 
-            format.height && 
-            format.height <= 720 // Limit to 720p maximum
-          )
-          .sort((a: any, b: any) => (b.height || 0) - (a.height || 0))
-          .slice(0, 8) // Limit to top 8 formats under 720p
-          .forEach((format: any) => {
-            const fileSizeMB = format.filesize ? Math.round(format.filesize / 1024 / 1024) : 0
-            video_streams.push({
-              format_id: format.format_id,
-              resolution: `${format.height}p`,
-              fps: format.fps || 30,
-              filesize: format.filesize || 0,
-              filesize_mb: fileSizeMB,
-              ext: format.ext || 'mp4',
-              recommended: fileSizeMB > 0 && fileSizeMB <= 200 // Mark files under 200MB as recommended
-            })
-          })
-      }
-
-      // Add fallback formats if no suitable formats found
-      if (video_streams.length === 0) {
-        video_streams.push({
-          format_id: 'best',
-          resolution: '720p',
-          fps: 30,
-          filesize: 0,
-          filesize_mb: 0,
-          ext: 'mp4',
-          recommended: true
-        })
-      }
-
-      // Add special connection-optimized options at the top
-      video_streams.unshift(
+      // Create standard video quality options (since we can't get real formats without yt-dlp)
+      const video_streams = [
         {
           format_id: 'ultra_reliable',
           resolution: '360p',
@@ -128,31 +84,51 @@ export async function POST(request: NextRequest) {
           filesize_mb: 60, // Optimized for slow connections
           ext: 'mp4',
           recommended: true
+        },
+        {
+          format_id: 'standard',
+          resolution: '720p',
+          fps: 30,
+          filesize: 0,
+          filesize_mb: 120, // Standard quality
+          ext: 'mp4',
+          recommended: true
+        },
+        {
+          format_id: 'best',
+          resolution: '720p',
+          fps: 30,
+          filesize: 0,
+          filesize_mb: 150, // Best available under 720p
+          ext: 'mp4',
+          recommended: true
         }
-      )
+      ]
 
       const videoInfo: VideoInfo = {
-        title: videoData.title || 'Unknown Title',
-        author: videoData.uploader || videoData.channel || 'Unknown Author',
-        duration_str: videoData.duration_string || 'Unknown',
-        views: videoData.view_count || 0,
-        publish_date: videoData.upload_date || '',
-        description: videoData.description || '',
+        title: oembedData.title || 'Unknown Title',
+        author: oembedData.author_name || 'Unknown Author',
+        duration_str: 'Available after download',
+        views: 0, // Not available from oEmbed
+        publish_date: '',
+        description: `Video from ${oembedData.author_name}`,
         thumbnails,
         video_streams
       }
 
       return NextResponse.json({ video_info: videoInfo })
 
-    } catch (execError: any) {
-      console.error('yt-dlp error:', execError)
+    } catch (fetchError: any) {
+      console.error('Video info fetch error:', fetchError)
       
-      if (execError.message.includes('timeout')) {
-        return NextResponse.json({ error: 'Request timeout. Please try again.' }, { status: 408 })
+      if (fetchError.message.includes('Video not found')) {
+        return NextResponse.json({ 
+          error: 'Video not found, private, or deleted.' 
+        }, { status: 404 })
       }
       
       return NextResponse.json({ 
-        error: 'Failed to extract video information. The video may be private, deleted, or unsupported.' 
+        error: 'Failed to extract video information. Please check the URL and try again.' 
       }, { status: 400 })
     }
 

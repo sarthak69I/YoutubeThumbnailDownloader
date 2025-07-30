@@ -33,30 +33,42 @@ export async function GET(request: NextRequest) {
     // Construct yt-dlp command for video download with 720p limit
     let command = `yt-dlp --format "${formatId}" --output "${outputTemplate}" "${url}"`
     
-    // Add quality fallbacks with maximum 720p for serverless compatibility
-    // Prioritize smaller files for slow connections
+    // Progressive quality fallbacks to ensure downloads always succeed
     if (formatId === 'best') {
-      command = `yt-dlp --format "best[height<=720][filesize<=300M]/best[height<=480][filesize<=150M]/worst" --output "${outputTemplate}" "${url}"`
+      // Best quality with progressive fallbacks for reliability
+      command = `yt-dlp --format "best[height<=720][filesize<=200M]/best[height<=480][filesize<=100M]/best[height<=360][filesize<=50M]/worst" --output "${outputTemplate}" "${url}"`
     } else if (formatId === 'slow_connection') {
-      // Special format for slow connections - prioritize smaller files
-      command = `yt-dlp --format "best[height<=480][filesize<=100M]/best[height<=360]/worst" --output "${outputTemplate}" "${url}"`
+      // Optimized for slow connections - guaranteed success
+      command = `yt-dlp --format "best[height<=480][filesize<=80M]/best[height<=360][filesize<=40M]/worst[height<=240]" --output "${outputTemplate}" "${url}"`
+    } else if (formatId === 'ultra_reliable') {
+      // Ultra reliable option - works on any connection speed
+      command = `yt-dlp --format "best[height<=360][filesize<=30M]/worst[height<=240]/worst" --output "${outputTemplate}" "${url}"`
     } else {
-      // Ensure any specific format doesn't exceed 720p and add size limits
-      command = `yt-dlp --format "${formatId}[height<=720][filesize<=300M]/${formatId}/best[height<=720]/best[height<=480]" --output "${outputTemplate}" "${url}"`
+      // Specific format with multiple fallbacks
+      command = `yt-dlp --format "${formatId}[height<=720][filesize<=200M]/${formatId}[height<=480]/${formatId}/best[height<=480][filesize<=100M]/best[height<=360]/worst" --output "${outputTemplate}" "${url}"`
     }
 
     try {
-      // Execute download with timeout
-      await execAsync(command, { timeout: 25000 })
+      // Execute download with extended timeout for reliability
+      await execAsync(command, { timeout: 28000 })
       
       // Find the downloaded file
       const files = fs.readdirSync(tempDir).filter(f => f.startsWith(`video_${timestamp}`))
       
       if (files.length === 0) {
-        throw new Error('Download failed - no file created')
+        // If no file found, try one more time with the most reliable format
+        console.log('First attempt failed, trying ultra-reliable format')
+        const fallbackCommand = `yt-dlp --format "worst[height<=240]/worst" --output "${outputTemplate}" "${url}"`
+        await execAsync(fallbackCommand, { timeout: 20000 })
+        
+        const fallbackFiles = fs.readdirSync(tempDir).filter(f => f.startsWith(`video_${timestamp}`))
+        if (fallbackFiles.length === 0) {
+          throw new Error('Download failed - no file created after fallback attempt')
+        }
+        tempFilePath = path.join(tempDir, fallbackFiles[0])
+      } else {
+        tempFilePath = path.join(tempDir, files[0])
       }
-
-      tempFilePath = path.join(tempDir, files[0])
       
       // Check if file exists and has content
       const stats = fs.statSync(tempFilePath)

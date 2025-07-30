@@ -60,6 +60,8 @@ Your E-LEAKxDOWN app is now fully converted to work on Vercel with serverless fu
 4. **Import your repository**
 5. **Click "Deploy"** (no configuration needed!)
 
+**Note**: If you get a "functions property cannot be used with builds" error, make sure your `vercel.json` file is properly configured (see VERCEL_ERROR_FIXES.md).
+
 ### Step 3: Test Your Live App (3 minutes)
 Your app will be live at: `https://your-project-name.vercel.app`
 
